@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Open Systems — Fechamento de Varanda</title>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  const cfg = {
+    apiKey:"AIzaSyDxWHZlDWG7C3KI8BmMmpu7dJE6OJG47fM",
+    authDomain:"open-systems--varanda.firebaseapp.com",
+    projectId:"open-systems--varanda",
+    storageBucket:"open-systems--varanda.firebasestorage.app",
+    messagingSenderId:"731768224188",
+    appId:"1:731768224188:web:6aea907c9a14804dcf53b9"
+  };
+  const app = initializeApp(cfg);
+  const db = getFirestore(app);
+  window._db = db;
+  window._fb = { collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, updateDoc };
+  window._fbReady = true;
+  document.dispatchEvent(new Event('fbready'));
+</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#f2f2f2;color:#1a1a1a;font-size:15px}
+.app{max-width:720px;margin:0 auto;padding:10px}
+.logo-bar{background:#1a3a5c;border-radius:10px;padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.logo-text{color:#fff;line-height:1.2;flex:1}
+.logo-text strong{font-size:19px;font-weight:800}
+.logo-text span{font-size:12px;color:#7fb8e0;display:block}
+.logo-contact{text-align:right;color:#7fb8e0;font-size:11px;line-height:1.7}
+.tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px}
+.tab{padding:6px 11px;border:1px solid #ccc;border-radius:7px;background:#fff;cursor:pointer;font-size:13px;color:#555}
+.tab.active{background:#1a3a5c;color:#fff;border-color:#1a3a5c}
+.sec{display:none}.sec.active{display:block}
+.card{background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:12px;margin-bottom:10px}
+.card h3{font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
+.fld{display:flex;flex-direction:column;gap:3px}
+label{font-size:12px;color:#666}
+input,select,textarea{padding:8px 9px;border:1px solid #ddd;border-radius:7px;background:#fff;color:#1a1a1a;font-size:14px;width:100%}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#1a3a5c}
+.met{background:#f7f7f7;border-radius:7px;padding:9px;text-align:center}
+.met .l{font-size:11px;color:#999;margin-bottom:2px}
+.met .v{font-size:15px;font-weight:600}
+.met .s{font-size:11px;color:#bbb;margin-top:1px}
+.btn{background:#1a3a5c;color:#fff;border:none;border-radius:8px;padding:11px;font-size:14px;font-weight:500;cursor:pointer;width:100%;margin-top:8px}
+.btn:hover{background:#245080}
+.btn2{background:#fff;color:#1a1a1a;border:1px solid #ccc;border-radius:8px;padding:10px;font-size:14px;cursor:pointer;width:100%;margin-top:6px}
+.btn-green{background:#16a34a;color:#fff;border:none;border-radius:8px;padding:11px;font-size:14px;font-weight:500;cursor:pointer;width:100%;margin-top:8px}
+.btn-red{background:#dc2626;color:#fff;border:none;border-radius:7px;padding:6px 10px;font-size:12px;cursor:pointer}
+.btn-sm{padding:5px 10px;font-size:12px;border:1px solid #ccc;border-radius:6px;background:#fff;cursor:pointer}
+.item-box{background:#f7f9ff;border:1px solid #c7d8f0;border-radius:9px;padding:12px;margin-bottom:10px}
+.item-box .item-num{font-size:12px;font-weight:600;color:#1a3a5c;margin-bottom:8px}
+.add-item-btn{background:#e8f0fe;color:#1a3a5c;border:1px dashed #1a3a5c;border-radius:8px;padding:10px;font-size:14px;cursor:pointer;width:100%;margin-top:4px;font-weight:500}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{padding:6px;border-bottom:1px solid #eee;color:#999;font-size:11px;text-align:left}
+td{padding:6px;border-bottom:1px solid #f2f2f2;vertical-align:middle}
+.r{text-align:right}
+.ftd{font-weight:600;border-top:2px solid #1a3a5c;padding-top:8px;color:#1a3a5c}
+.info{background:#e8f4fd;border-radius:8px;padding:10px;font-size:13px;color:#1a5276;margin-top:8px}
+.info-green{background:#dcfce7;border-radius:8px;padding:10px;font-size:13px;color:#14532d;margin-top:8px}
+.alerta{background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:9px 12px;font-size:13px;color:#7a5800;margin-bottom:10px;display:none}
+.badge{display:inline-block;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:600}
+.badge-orc{background:#e0e7ff;color:#3730a3}
+.badge-ped{background:#dcfce7;color:#14532d}
+.badge-can{background:#fee2e2;color:#991b1b}
+.list-item{background:#fff;border:1px solid #e0e0e0;border-radius:9px;padding:11px 12px;margin-bottom:8px;display:flex;align-items:center;gap:8px;cursor:pointer}
+.list-item:hover{border-color:#1a3a5c}
+.list-item .info-l{flex:1;min-width:0}
+.list-item .num{font-weight:600;font-size:14px}
+.list-item .sub{font-size:12px;color:#888;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.search-row{display:flex;gap:8px;margin-bottom:10px}
+.search-row input{flex:1}
+.wa{display:inline-flex;align-items:center;gap:6px;background:#25D366;color:#fff;padding:9px 16px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:500;margin-top:8px}
+.taxa-box{background:#f0f7ff;border:1px solid #bee3f8;border-radius:8px;padding:10px;margin-top:8px;font-size:13px}
+.taxa-row{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #e0eef8}
+.taxa-row:last-child{border:none;font-weight:600}
+.modal-bg{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:100;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:12px;padding:20px;width:90%;max-width:400px}
+.modal h3{font-size:16px;font-weight:600;margin-bottom:14px}
+.chk-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:14px}
+.chk-row input[type=checkbox]{width:18px;height:18px;cursor:pointer}
+.det-item{background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:10px;margin-bottom:10px}
+.det-item-title{font-size:12px;font-weight:600;color:#1a3a5c;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #eee}
+.row-azul td{background:#1a3a5c!important;color:#fff!important;font-weight:600;padding:7px 6px}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="logo-bar">
+  <svg width="130" height="52" viewBox="0 0 260 104" xmlns="http://www.w3.org/2000/svg">
+    <g transform="translate(170,4)">
+      <rect x="18" y="0" width="52" height="38" rx="3" fill="#a8d8f0" opacity="0.5"/>
+      <rect x="10" y="8" width="52" height="38" rx="3" fill="#6bbde0" opacity="0.7"/>
+      <rect x="2" y="16" width="52" height="38" rx="3" fill="#3a9fd4"/>
+    </g>
+    <text x="0" y="38" font-family="Arial,sans-serif" font-size="36" font-weight="900" fill="#fff">Open</text>
+    <text x="0" y="72" font-family="Arial,sans-serif" font-size="36" font-weight="900" fill="#fff">Systems</text>
+    <text x="2" y="95" font-family="Arial,sans-serif" font-size="16" fill="#7fb8e0">Soluções em vidro</text>
+  </svg>
+  <div style="flex:1"></div>
+  <div class="logo-contact">
+    <div>(71) 99163-0100 / 9168-1228</div>
+    <div>mdwanderley@gmail.com</div>
+    <div>CNPJ: 58.002.278/0001-58</div>
+    <div id="fb-status" style="font-size:10px;color:#aaa;margin-top:2px">⏳ conectando...</div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="T('lista')">&#128203; Orçamentos</button>
+  <button class="tab" onclick="novoOrc()">&#65291; Novo</button>
+  <button class="tab" onclick="T('form')">&#9998; Editar</button>
+  <button class="tab" onclick="T('calc')">Cálculo</button>
+  <button class="tab" onclick="T('prop')">Proposta</button>
+  <button class="tab" onclick="T('corte')">Cortes</button>
+  <button class="tab" onclick="T('prec')">Preços</button>
+</div>
+
+<!-- LISTA -->
+<div id="tab-lista" class="sec active">
+  <div class="card">
+    <h3>Orçamentos salvos</h3>
+    <div class="search-row">
+      <input id="busca" type="text" autocomplete="off" placeholder="Buscar por nome ou ORC-..." oninput="renderLista()">
+      <button class="btn-sm" onclick="document.getElementById('busca').value='';renderLista()">Limpar</button>
+    </div>
+    <div id="lista-orcs"></div>
+  </div>
+</div>
+
+<!-- FORM -->
+<div id="tab-form" class="sec">
+  <div id="status-bar" style="margin-bottom:10px;display:none"></div>
+  <div class="card">
+    <h3>Identificação</h3>
+    <div class="g2">
+      <div class="fld"><label>Nº orçamento</label><input id="n_orc" type="text" readonly style="background:#f5f5f5;color:#888"></div>
+      <div class="fld"><label>Data</label><input id="data" type="date"></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Cliente</h3>
+    <div class="g2">
+      <div class="fld"><label>Nome completo</label><input id="cli_nome" type="text" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Nome do cliente" maxlength="60"></div>
+      <div class="fld">
+        <label>Telefone (WhatsApp)</label>
+        <input id="cli_tel" type="tel" autocomplete="off" placeholder="71 99163-0100" oninput="fmtTel(this)">
+        <span id="wa_pre" style="font-size:12px;color:#25D366;margin-top:2px"></span>
+      </div>
+      <div class="fld"><label>CPF / CNPJ (nota fiscal)</label><input id="cli_cpf" type="text" autocomplete="off" placeholder="000.000.000-00" oninput="fmtDoc(this)" maxlength="18"></div>
+      <div class="fld"><label>E-mail</label><input id="cli_email" type="email" autocomplete="off" placeholder="cliente@email.com"></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Local de instalação</h3>
+    <div class="g2">
+      <div class="fld"><label>Nome do Prédio / Condomínio</label><input id="pred_nome" type="text" autocomplete="off" placeholder="Ed. Solar das Flores" maxlength="60"></div>
+      <div class="fld">
+        <label>CEP</label>
+        <input id="end_cep" type="text" autocomplete="off" placeholder="41820-021" maxlength="9" oninput="mCep(this);autoBuscaCep(this)">
+        <span id="cep_st" style="font-size:12px;color:#888;margin-top:2px"></span>
+      </div>
+      <div class="fld" style="grid-column:1/-1"><label>Rua / Logradouro</label><input id="end_rua" type="text" autocomplete="off" placeholder="Preenchido pelo CEP"></div>
+      <div class="fld"><label>Número</label><input id="end_num" type="text" autocomplete="off" placeholder="123"></div>
+      <div class="fld"><label>Apto / Complemento</label><input id="end_apto" type="text" autocomplete="off" placeholder="Apto 401"></div>
+      <div class="fld"><label>Bairro</label><input id="end_bairro" type="text" autocomplete="off" placeholder="Bairro"></div>
+      <div class="fld"><label>Cidade / UF</label>
+        <div style="display:flex;gap:6px">
+          <input id="end_cidade" type="text" autocomplete="off" placeholder="Salvador" style="flex:3">
+          <input id="end_uf" type="text" autocomplete="off" placeholder="BA" maxlength="2" style="flex:1;text-transform:uppercase">
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Especificações gerais</h3>
+    <div class="g2">
+      <div class="fld"><label>Espessura do vidro</label>
+        <select id="v_esp"><option value="8">8mm (até 1,90m)</option><option value="10">10mm (acima 1,90m)</option></select>
+      </div>
+      <div class="fld"><label>Cor do vidro</label>
+        <select id="v_cor"><option value="inc">Incolor</option><option value="fum">Fumê</option><option value="ver">Verde</option></select>
+      </div>
+      <div class="fld"><label>Cor do alumínio</label>
+        <select id="al_cor" onchange="toggleRal()">
+          <option value="branco">Branco</option><option value="bronze">Bronze 1002</option>
+          <option value="preto">Preto</option><option value="ral">Cor RAL (+R$15/kg)</option>
+        </select>
+      </div>
+      <div class="fld" id="ral_field" style="display:none"><label>Código RAL</label><input id="ral_cod" type="text" autocomplete="off" placeholder="Ex: RAL 7016"></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Itens do orçamento</h3>
+    <div id="itens-container"></div>
+    <button class="add-item-btn" onclick="addItem(null)">&#65291; Adicionar item</button>
+  </div>
+  <div class="card">
+    <h3>Pagamento e condições</h3>
+    <div class="g2">
+      <div class="fld"><label>Desconto geral (%)</label><input id="desconto" type="number" value="0" min="0" max="50" step="0.5"></div>
+      <div class="fld"><label>Validade da proposta</label>
+        <select id="validade"><option value="15 dias">15 dias</option><option value="30 dias">30 dias</option><option value="7 dias">7 dias</option><option value="a combinar">A combinar</option></select>
+      </div>
+      <div class="fld"><label>Forma de pagamento</label>
+        <select id="pgto">
+          <option value="pix">PIX (sem acréscimo)</option>
+          <option value="avista">Crédito à vista (+4,20%)</option>
+          <option value="2x">2x (+6,09%)</option><option value="3x">3x (+7,01%)</option>
+          <option value="4x">4x (+7,91%)</option><option value="5x">5x (+8,80%)</option>
+          <option value="6x">6x (+9,67%)</option><option value="7x">7x (+12,59%)</option>
+          <option value="8x">8x (+13,42%)</option><option value="9x">9x (+14,25%)</option>
+          <option value="10x">10x (+15,06%)</option><option value="11x">11x (+15,87%)</option>
+          <option value="12x">12x (+16,66%)</option>
+        </select>
+      </div>
+    </div>
+    <div class="fld" style="margin-top:8px"><label>Condições especiais para o cliente</label>
+      <textarea id="obs_cliente" rows="4" placeholder="Ex: 50% na aprovação, 50% na entrega..."></textarea>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Observações internas</h3>
+    <div class="fld"><textarea id="obs_int" rows="2" placeholder="Não aparecem na proposta..."></textarea></div>
+  </div>
+  <button class="btn" onclick="salvar()">&#128190; Salvar orçamento</button>
+  <button class="btn-green" onclick="salvarECalcular()" style="margin-top:6px">Calcular &#8594;</button>
+  <div id="btn-confirmar-div" style="margin-top:6px"></div>
+</div>
+
+<!-- CÁLCULO -->
+<div id="tab-calc" class="sec">
+  <div id="alrt" class="alerta"></div>
+  <div class="card"><h3>Totais gerais</h3><div id="g-kits" class="g3"></div></div>
+  <div id="det-container"></div>
+  <div class="card">
+    <h3>Resumo por item</h3>
+    <table><thead><tr><th>Item</th><th class="r">Custo</th><th class="r">Preço</th><th class="r">c/ Desc.</th></tr></thead>
+    <tbody id="tb-resumo"></tbody><tfoot id="ft-resumo"></tfoot></table>
+  </div>
+  <div class="card">
+    <h3>Preço final</h3>
+    <div id="g-p" class="g3"></div>
+    <div id="d-inst" class="info"></div>
+    <div id="d-desc" class="info-green" style="display:none"></div>
+    <div id="d-taxa" class="taxa-box" style="display:none"></div>
+  </div>
+  <button class="btn" onclick="T('prop')">Ver proposta &#8594;</button>
+</div>
+
+<!-- PROPOSTA -->
+<div id="tab-prop" class="sec">
+  <div class="card">
+    <h3 id="prop-titulo">Proposta de Fornecimento</h3>
+    <div id="txt-prop" style="background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:16px;font-size:13px;max-height:620px;overflow-y:auto"></div>
+    <div id="wa-div" style="margin-top:8px"></div>
+  </div>
+  <button class="btn" onclick="abrirModalImpressao()">&#128424; Imprimir / Escolher seções</button>
+  <button class="btn2" onclick="T('corte')">Ver medidas de corte &#8594;</button>
+</div>
+
+<!-- CORTES -->
+<div id="tab-corte" class="sec">
+  <div id="cortes-container"></div>
+  <button class="btn" onclick="abrirModalImpressao()">&#128424; Imprimir</button>
+  <button class="btn2" onclick="cop('corte')">Copiar medidas</button>
+</div>
+
+<!-- PREÇOS -->
+<div id="tab-prec" class="sec">
+  <div class="card">
+    <h3>Tabela de preços</h3>
+    <div class="g2">
+      <div class="fld"><label>Kit 3.000mm (R$)</label><input id="p_kit" type="number" value="1100" step="0.01"></div>
+      <div class="fld"><label>Parafuso sext. (R$)</label><input id="p_par" type="number" value="1.08" step="0.01"></div>
+      <div class="fld"><label>Bucha M6x60 (R$)</label><input id="p_buc" type="number" value="0.05" step="0.01"></div>
+      <div class="fld"><label>Silicone neutro (R$)</label><input id="p_sn" type="number" value="28.80" step="0.01"></div>
+      <div class="fld"><label>Cola Adespec (R$)</label><input id="p_ad" type="number" value="49.64" step="0.01"></div>
+      <div class="fld"><label>Silicone aquário (R$)</label><input id="p_sa" type="number" value="35.54" step="0.01"></div>
+      <div class="fld"><label>Silicone spray (R$)</label><input id="p_ss" type="number" value="17.26" step="0.01"></div>
+      <div class="fld"><label>Fechadura extra (R$)</label><input id="p_fech" type="number" value="115" step="0.01"></div>
+      <div class="fld"><label>Prendedor extra (R$)</label><input id="p_pren" type="number" value="35" step="0.01"></div>
+      <div class="fld"><label>Incolor 8mm (R$/m²)</label><input id="p_i8" type="number" value="186" step="0.01"></div>
+      <div class="fld"><label>Incolor 10mm (R$/m²)</label><input id="p_i10" type="number" value="230" step="0.01"></div>
+      <div class="fld"><label>Fumê/Verde 8mm (R$/m²)</label><input id="p_c8" type="number" value="225" step="0.01"></div>
+      <div class="fld"><label>Fumê/Verde 10mm (R$/m²)</label><input id="p_c10" type="number" value="285" step="0.01"></div>
+      <div class="fld"><label>RAL acréscimo (R$/kg)</label><input id="p_ral" type="number" value="15" step="0.01"></div>
+      <div class="fld"><label>Peso kit 3.000mm (kg)</label><input id="p_kgkit" type="number" value="16" step="0.1"></div>
+      <div class="fld"><label>Markup (%)</label><input id="p_mk" type="number" value="100" step="1"></div>
+      <div class="fld"><label>Instalação (R$/m²)</label><input id="p_in" type="number" value="80" step="0.01"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal-imp">
+  <div class="modal">
+    <h3>&#128424; Escolha o que imprimir</h3>
+    <div class="chk-row"><input type="checkbox" id="imp_prop" checked><label for="imp_prop">Carta Proposta / Pedido</label></div>
+    <div class="chk-row"><input type="checkbox" id="imp_mat"><label for="imp_mat">Custos detalhados por item</label></div>
+    <div class="chk-row"><input type="checkbox" id="imp_corte"><label for="imp_corte">Medidas de Corte</label></div>
+    <button class="btn" onclick="executarImpressao()" style="margin-top:12px">Imprimir</button>
+    <button class="btn2" onclick="fecharModal()">Cancelar</button>
+  </div>
+</div>
+
+</div>
+<script>
+var TAXAS={pix:0,avista:4.20,'2x':6.09,'3x':7.01,'4x':7.91,'5x':8.80,'6x':9.67,'7x':12.59,'8x':13.42,'9x':14.25,'10x':15.06,'11x':15.87,'12x':16.66};
+var orcAtual=null,itens=[],cepTimer=null;
+
+function el(id){return document.getElementById(id);}
+function fmt(v){return Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function gp(id){return parseFloat(el(id).value)||0;}
+
+function T(t){
+  var tabs=['lista','form','calc','prop','corte','prec'];
+  var btns=document.querySelectorAll('.tab');
+  for(var i=0;i<tabs.length;i++){
+    var s=el('tab-'+tabs[i]);
+    if(s)s.style.display=tabs[i]===t?'block':'none';
+    if(btns[i])btns[i].classList.toggle('active',tabs[i]===t);
+  }
+  if(t==='lista')renderLista();
+  if(t==='calc'||t==='prop'||t==='corte')calc();
+}
+
+// Firebase status
+var _fbStatus='aguardando';
+document.addEventListener('fbready',function(){
+  _fbStatus='ok';
+  var sb=document.getElementById('fb-status');
+  if(sb){sb.textContent='🟢 Firebase OK';sb.style.color='#6fe09a';}
+  renderLista();
+});
+setTimeout(function(){
+  if(_fbStatus!=='ok'){
+    var sb=document.getElementById('fb-status');
+    if(sb){sb.textContent='🔴 Sem Firebase';sb.style.color='#f87171';}
+  }
+},5000);
+
+// Salvar orçamento no Firebase
+async function saveOrc(o){
+  if(!window._fbReady)throw new Error('Firebase não conectado');
+  var {collection,addDoc,doc,updateDoc}=window._fb;
+  if(o._id){
+    // Atualiza existente
+    var ref=doc(window._db,'orcamentos',o._id);
+    var data=Object.assign({},o);delete data._id;
+    data.itens=JSON.stringify(data.itens);
+    data.atualizadoEm=new Date().toISOString();
+    await updateDoc(ref,data);
+    return o._id;
+  } else {
+    // Cria novo
+    var data=Object.assign({},o);
+    data.itens=JSON.stringify(data.itens);
+    data.criadoEm=new Date().toISOString();
+    var ref=await addDoc(collection(window._db,'orcamentos'),data);
+    return ref.id;
+  }
+}
+
+// Carregar todos orçamentos
+async function loadOrcs(){
+  if(!window._fbReady)return[];
+  var {collection,getDocs,query,orderBy}=window._fb;
+  var q=query(collection(window._db,'orcamentos'),orderBy('criadoEm','desc'));
+  var snap=await getDocs(q);
+  var arr=[];
+  snap.forEach(function(d){
+    var o=d.data();
+    o._id=d.id;
+    if(typeof o.itens==='string')o.itens=JSON.parse(o.itens);
+    arr.push(o);
+  });
+  return arr;
+}
+
+// Excluir orçamento
+async function deleteOrc(id){
+  if(!window._fbReady)throw new Error('Firebase não conectado');
+  var {deleteDoc,doc}=window._fb;
+  await deleteDoc(doc(window._db,'orcamentos',id));
+}
+
+function proximoNum(){
+  var arr=getOrcs();if(!arr.length)return 5000;
+  var max=4999;
+  for(var i=0;i<arr.length;i++){var n=parseInt((arr[i].num||'ORC-4999').replace('ORC-',''))||0;if(n>max)max=n;}
+  return max+1;
+}
+
+function pad(n,len){var s=String(n);while(s.length<len)s='0'+s;return s;}
+function hoje(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1,2)+'-'+pad(d.getDate(),2);}
+
+function novoOrc(){
+  orcAtual=null;itens=[];limparForm();
+  el('n_orc').value='ORC-'+pad(proximoNum(),4);
+  el('data').value=hoje();
+  el('status-bar').style.display='none';
+  el('btn-confirmar-div').innerHTML='';
+  itens=[{larg:'',alt:'',nf:'',nab:'1',qtd:'1',canto:'0'}];
+  renderItens();T('form');
+}
+
+function limparForm(){
+  var ids=['cli_nome','cli_tel','cli_cpf','cli_email','pred_nome','end_cep','end_rua','end_num','end_apto','end_bairro','end_cidade','end_uf','obs_cliente','obs_int','ral_cod'];
+  for(var i=0;i<ids.length;i++){var e=el(ids[i]);if(e)e.value='';}
+  el('wa_pre').textContent='';el('wa_pre').setAttribute('data-n','');
+  el('cep_st').textContent='';
+  el('v_esp').value='8';el('v_cor').value='inc';el('al_cor').value='branco';
+  el('ral_field').style.display='none';
+  el('desconto').value='0';el('validade').value='15 dias';el('pgto').value='pix';
+}
+
+function toggleRal(){el('ral_field').style.display=el('al_cor').value==='ral'?'flex':'none';}
+
+function addItem(dados){
+  var it=dados||{larg:'',alt:'',nf:'',nab:'1',qtd:'1',canto:'0'};
+  itens.push(it);renderItens();
+}
+
+function removeItem(idx){
+  if(itens.length<=1){alert('Mínimo 1 item.');return;}
+  itens.splice(idx,1);renderItens();
+}
+
+function renderItens(){
+  var c=el('itens-container');c.innerHTML='';
+  for(var i=0;i<itens.length;i++){
+    (function(idx){
+      var it=itens[idx];
+      var div=document.createElement('div');div.className='item-box';
+      div.innerHTML='<div class="item-num">Item '+(idx+1)+'</div>'+
+        '<div class="g2">'+
+        '<div class="fld"><label>Largura (mm)</label><input type="number" placeholder="Ex: 4900" value="'+(it.larg||'')+'" id="it_l_'+idx+'"></div>'+
+        '<div class="fld"><label>Altura (mm)</label><input type="number" placeholder="Ex: 2420" value="'+(it.alt||'')+'" id="it_a_'+idx+'"></div>'+
+        '<div class="fld"><label>Nº de folhas</label><input type="number" placeholder="Ex: 9" value="'+(it.nf||'')+'" id="it_f_'+idx+'"></div>'+
+        '<div class="fld"><label>Nº de aberturas</label><select id="it_nab_'+idx+'">'+
+        '<option value="1"'+(it.nab!=='2'?' selected':'')+'>1 abertura</option>'+
+        '<option value="2"'+(it.nab==='2'?' selected':'')+'>2 aberturas</option></select></div>'+
+        '<div class="fld"><label>Quantidade</label><input type="number" min="1" value="'+(it.qtd||1)+'" id="it_q_'+idx+'"></div>'+
+        '<div class="fld"><label>Tipo de canto</label><select id="it_c_'+idx+'">'+
+        '<option value="0"'+(!it.canto||it.canto==='0'?' selected':'')+'>Reto</option>'+
+        '<option value="1"'+(it.canto==='1'?' selected':'')+'>Canto 90° — 1 lado</option>'+
+        '<option value="2"'+(it.canto==='2'?' selected':'')+'>Canto 90° — 2 lados</option></select></div>'+
+        '</div>'+(itens.length>1?'<div style="margin-top:8px"><button class="btn-red" onclick="removeItem('+idx+')">Remover item</button></div>':'');
+      c.appendChild(div);
+      el('it_l_'+idx).onchange=function(){itens[idx].larg=this.value;};
+      el('it_a_'+idx).onchange=function(){itens[idx].alt=this.value;};
+      el('it_f_'+idx).onchange=function(){itens[idx].nf=this.value;};
+      el('it_nab_'+idx).onchange=function(){itens[idx].nab=this.value;};
+      el('it_q_'+idx).onchange=function(){itens[idx].qtd=this.value;};
+      el('it_c_'+idx).onchange=function(){itens[idx].canto=this.value;};
+    })(i);
+  }
+}
+
+function coletarItens(){
+  for(var i=0;i<itens.length;i++){
+    var l=el('it_l_'+i),a=el('it_a_'+i),f=el('it_f_'+i),nab=el('it_nab_'+i),q=el('it_q_'+i),c=el('it_c_'+i);
+    if(l)itens[i].larg=l.value;if(a)itens[i].alt=a.value;if(f)itens[i].nf=f.value;
+    if(nab)itens[i].nab=nab.value;if(q)itens[i].qtd=q.value;if(c)itens[i].canto=c.value;
+  }
+}
+
+function calcItem(it){
+  var L=parseFloat(it.larg)||0,A=parseFloat(it.alt)||0,nF=parseInt(it.nf)||0;
+  var nAb=parseInt(it.nab)||1,qtd=parseInt(it.qtd)||1,nc=parseInt(it.canto)||0;
+  if(!L||!A||!nF)return null;
+  var esp=parseInt(el('v_esp').value)||8,cor=el('v_cor').value,alCor=el('al_cor').value;
+  var nK=Math.ceil(L/3000);
+  var lF=Math.round((L-30-(nF-1)*3-nc*26)/nF);
+  var aF=Math.round(A-160);
+  var arT=(lF/1000)*(aF/1000)*nF;
+  var m2=(L/1000)*(A/1000);
+  var pV=cor==='inc'?(esp===8?gp('p_i8'):gp('p_i10')):(esp===8?gp('p_c8'):gp('p_c10'));
+  var fs=nK*0.5;
+  var cRal=alCor==='ral'?nK*gp('p_kgkit')*gp('p_ral'):0;
+  var cAb=nAb>1?(gp('p_fech')+gp('p_pren')):0;
+  var cMat=(nK*gp('p_kit'))+(nK*12*gp('p_par'))+(nK*12*gp('p_buc'))+(fs*gp('p_sn'))+(fs*gp('p_ad'))+(fs*gp('p_sa'))+(fs*gp('p_ss'))+(arT*pV)+cAb+cRal;
+  var pUnit=cMat*(1+gp('p_mk')/100);
+  var cInstUnit=m2*gp('p_in');
+  return {L:L,A:A,nF:nF,nAb:nAb,qtd:qtd,nc:nc,nK:nK,lF:lF,aF:aF,arT:arT,m2:m2,
+    cMat:cMat,pUnit:pUnit,cInstUnit:cInstUnit,fs:fs,pV:pV,esp:esp,cor:cor,
+    cMatTotal:cMat*qtd,pTotal:pUnit*qtd,cInstTotal:cInstUnit*qtd};
+}
+
+function gerarDetHTML(resultados,desc){
+  var esp=parseInt(el('v_esp').value)||8;
+  var cor=el('v_cor').value;
+  var cL={inc:'Incolor',fum:'Fumê',ver:'Verde'}[cor]||cor;
+  var html='';
+  for(var i=0;i<resultados.length;i++){
+    var r=resultados[i];
+    var pItem=desc>0?r.pTotal*(1-desc/100):r.pTotal;
+    html+='<div class="det-item">';
+    html+='<div class="det-item-title">Item '+r.idx+(r.qtd>1?' (×'+r.qtd+')':'')+' — '+r.L+' × '+r.A+'mm — '+r.nF+' folhas'+(r.nAb>1?' — 2 aberturas':'')+'</div>';
+    html+='<table><thead><tr><th>Material</th><th class="r">Qtde</th><th class="r">Unit R$</th><th class="r">Total R$</th></tr></thead><tbody>';
+    var rows=[
+      ['Kits alumínio ('+r.nK+'× 3m)',r.nK*r.qtd,gp('p_kit'),r.nK*gp('p_kit')*r.qtd],
+      ['Parafusos sextavados',r.nK*12*r.qtd,gp('p_par'),r.nK*12*gp('p_par')*r.qtd],
+      ['Bucha S8',r.nK*12*r.qtd,gp('p_buc'),r.nK*12*gp('p_buc')*r.qtd],
+      ['Silicone neutro',r.fs*r.qtd+'un',gp('p_sn'),r.fs*gp('p_sn')*r.qtd],
+      ['Cola Adespec',r.fs*r.qtd+'un',gp('p_ad'),r.fs*gp('p_ad')*r.qtd],
+      ['Silicone aquário',r.fs*r.qtd+'un',gp('p_sa'),r.fs*gp('p_sa')*r.qtd],
+      ['Silicone spray',r.fs*r.qtd+'un',gp('p_ss'),r.fs*gp('p_ss')*r.qtd],
+      ['Vidro '+esp+'mm '+cL+' — '+(r.arT*r.qtd).toFixed(3)+'m²',(r.arT*r.qtd).toFixed(3)+'m²',fmt(r.pV)+'/m²',r.arT*r.pV*r.qtd],
+    ];
+    if(r.nAb>1)rows.push(['Fechadura + prendedor extra','1 jogo','—',gp('p_fech')+gp('p_pren')]);
+    for(var j=0;j<rows.length;j++){
+      html+='<tr><td>'+rows[j][0]+'</td><td class="r">'+rows[j][1]+'</td><td class="r">'+(typeof rows[j][2]==='number'?'R$ '+fmt(rows[j][2]):rows[j][2])+'</td><td class="r">R$ '+fmt(rows[j][3])+'</td></tr>';
+    }
+    html+='<tr><td class="ftd" colspan="3">Custo total materiais</td><td class="ftd r">R$ '+fmt(r.cMatTotal)+'</td></tr>';
+    html+='<tr class="row-azul"><td colspan="3">Preço de venda'+(r.qtd>1?' (×'+r.qtd+')':'')+'</td><td class="r">R$ '+fmt(pItem)+'</td></tr>';
+    html+='</tbody></table></div>';
+  }
+  return html;
+}
+
+function calc(){
+  coletarItens();
+  var resultados=[];
+  for(var i=0;i<itens.length;i++){var r=calcItem(itens[i]);if(r){r.idx=i+1;resultados.push(r);}}
+  if(!resultados.length){el('alrt').style.display='block';el('alrt').textContent='Preencha largura, altura e nº de folhas na aba Editar.';return;}
+  el('alrt').style.display='none';
+  var desc=parseFloat(el('desconto').value)||0;
+  var pgto=el('pgto').value;
+  var taxa=TAXAS[pgto]||0;
+  var totalCusto=0,totalPreco=0,totalInst=0,totalM2=0,totalFolhas=0,totalKits=0;
+  for(var i=0;i<resultados.length;i++){
+    totalCusto+=resultados[i].cMatTotal;totalPreco+=resultados[i].pTotal;
+    totalInst+=resultados[i].cInstTotal;totalM2+=resultados[i].m2*resultados[i].qtd;
+    totalFolhas+=resultados[i].nF*resultados[i].qtd;totalKits+=resultados[i].nK*resultados[i].qtd;
+  }
+  var pFdesc=desc>0?totalPreco*(1-desc/100):totalPreco;
+  var pFtaxa=taxa>0?pFdesc*(1+taxa/100):pFdesc;
+  var mets=[['Total kits',totalKits,'un'],['Total folhas',totalFolhas,'vidros'],['Área total',totalM2.toFixed(2),'m²'],['Itens',resultados.length,'itens'],['Custo','R$ '+fmt(totalCusto),''],['Preço','R$ '+fmt(totalPreco),'']];
+  var gk='';for(var i=0;i<mets.length;i++){gk+='<div class="met"><div class="l">'+mets[i][0]+'</div><div class="v">'+mets[i][1]+'</div><div class="s">'+mets[i][2]+'</div></div>';}
+  el('g-kits').innerHTML=gk;
+  var detHTML=gerarDetHTML(resultados,desc);
+  el('det-container').innerHTML=detHTML;
+  var rows='';
+  for(var i=0;i<resultados.length;i++){
+    var r=resultados[i];
+    var pDesc=desc>0?r.pTotal*(1-desc/100):r.pTotal;
+    rows+='<tr><td>Item '+r.idx+(r.qtd>1?' ×'+r.qtd:'')+' — '+r.L+'×'+r.A+'mm</td><td class="r">R$ '+fmt(r.cMatTotal)+'</td><td class="r">R$ '+fmt(r.pTotal)+'</td><td class="r">R$ '+fmt(pDesc)+'</td></tr>';
+  }
+  el('tb-resumo').innerHTML=rows;
+  el('ft-resumo').innerHTML='<tr><td class="ftd">TOTAL</td><td class="ftd r">R$ '+fmt(totalCusto)+'</td><td class="ftd r">R$ '+fmt(totalPreco)+'</td><td class="ftd r">R$ '+fmt(pFdesc)+'</td></tr>';
+  var gp2=[['Custo total','R$ '+fmt(totalCusto),''],['Lucro '+gp('p_mk')+'%','R$ '+fmt(totalPreco-totalCusto),''],['Preço final','R$ '+fmt(pFdesc),desc>0?'c/ '+desc+'% desc':'s/ instalação']];
+  var gph='';for(var i=0;i<gp2.length;i++){gph+='<div class="met"><div class="l">'+gp2[i][0]+'</div><div class="v">'+gp2[i][1]+'</div><div class="s">'+gp2[i][2]+'</div></div>';}
+  el('g-p').innerHTML=gph;
+  el('d-inst').innerHTML='<strong>Instalação (paga à parte):</strong> '+totalM2.toFixed(2)+' m² × R$ '+fmt(gp('p_in'))+'/m² = <strong>R$ '+fmt(totalInst)+'</strong><br><small>Total referência: <strong>R$ '+fmt(pFtaxa+totalInst)+'</strong></small>';
+  if(desc>0){el('d-desc').style.display='block';el('d-desc').innerHTML='Desconto de <strong>'+desc+'%</strong>: economia de <strong>R$ '+fmt(totalPreco-pFdesc)+'</strong>';}
+  else el('d-desc').style.display='none';
+  if(taxa>0){
+    var parc=parseInt(pgto)||1;
+    el('d-taxa').style.display='block';
+    el('d-taxa').innerHTML='<div class="taxa-row"><span>Pagamento</span><span>'+(pgto==='avista'?'À vista':pgto)+' — '+taxa+'%</span></div><div class="taxa-row"><span>Valor c/ taxa</span><span>R$ '+fmt(pFtaxa)+'</span></div>'+(parc>1?'<div class="taxa-row"><span>Por parcela</span><span>R$ '+fmt(pFtaxa/parc)+'</span></div>':'')+'<div class="taxa-row"><span>Total c/ instalação</span><span>R$ '+fmt(pFtaxa+totalInst)+'</span></div>';
+  } else el('d-taxa').style.display='none';
+  gerarProposta(resultados,desc,taxa,pgto,pFdesc,pFtaxa,totalInst,totalM2);
+  gerarCortes(resultados);
+}
+
+function gerarProposta(resultados,desc,taxa,pgto,pFdesc,pFtaxa,totalInst,totalM2){
+  var isPedido=orcAtual&&orcAtual.status==='pedido';
+  var esp=parseInt(el('v_esp').value)||8;
+  var cor=el('v_cor').value;
+  var alCor=el('al_cor').value;
+  var ralCod=el('ral_cod').value;
+  var cL={inc:'Incolor',fum:'Fumê',ver:'Verde'}[cor]||cor;
+  var alLabel={branco:'Branco',bronze:'Bronze 1002',preto:'Preto',ral:'RAL '+(ralCod||'')}[alCor]||alCor;
+  var nom=el('cli_nome').value||'[Cliente]';
+  var predio=el('pred_nome').value?'<tr><td><b>Prédio</b></td><td>'+el('pred_nome').value+'</td></tr>':'';
+  var cepV=el('end_cep').value?'CEP '+el('end_cep').value+' — ':'';
+  var rua=[el('end_rua').value,el('end_num').value,el('end_apto').value].filter(function(x){return x&&x.trim();}).join(', ');
+  var cidUF=(el('end_cidade').value||'')+(el('end_uf').value?' / '+el('end_uf').value:'');
+  var loc=[el('end_bairro').value,cidUF].filter(function(x){return x&&x.trim();}).join(' — ');
+  var endFull=cepV+[rua,loc].filter(function(x){return x.trim();}).join(' | ');
+  var dt=el('data').value?new Date(el('data').value+'T12:00:00').toLocaleDateString('pt-BR'):new Date().toLocaleDateString('pt-BR');
+  var nOrc=el('n_orc').value||'';
+  var obsC=el('obs_cliente').value||'';
+  var docCliente=el('cli_cpf').value?'<tr><td><b>CPF/CNPJ</b></td><td>'+el('cli_cpf').value+'</td></tr>':'';
+  var pgtoLabel=pgto==='pix'?'PIX (sem acréscimo)':pgto==='avista'?'Cartão crédito à vista (+4,20%)':'Cartão em '+pgto+' (+'+taxa+'%)';
+  var valorFinal=taxa>0?pFtaxa:pFdesc;
+  var itensRows='';
+  for(var i=0;i<resultados.length;i++){
+    var r=resultados[i];
+    var pItem=desc>0?r.pTotal*(1-desc/100):r.pTotal;
+    itensRows+='<tr style="background:'+(i%2===0?'#f9f9f9':'#fff')+'">';
+    itensRows+='<td style="padding:7px 6px">'+(i+1)+'</td>';
+    itensRows+='<td style="padding:7px 6px">Kit Sacada Certa Premium — '+alLabel+'</td>';
+    itensRows+='<td style="padding:7px 6px;text-align:center">'+esp+'mm '+cL+'</td>';
+    itensRows+='<td style="padding:7px 6px;text-align:center">'+r.L+'</td>';
+    itensRows+='<td style="padding:7px 6px;text-align:center">'+r.A+'</td>';
+    itensRows+='<td style="padding:7px 6px;text-align:center">'+r.nF+'</td>';
+    itensRows+='<td style="padding:7px 6px;text-align:center">'+r.nAb+'</td>';
+    itensRows+='<td style="padding:7px 6px;text-align:center">'+r.qtd+'</td>';
+    itensRows+='<td style="padding:7px 6px;text-align:right"><b>R$ '+fmt(pItem)+'</b></td></tr>';
+  }
+  var html='<div style="font-size:13px">';
+  html+='<div style="border:2px solid #1a3a5c;border-radius:10px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#1a3a5c">';
+  html+='<svg width="130" height="52" viewBox="0 0 260 104" xmlns="http://www.w3.org/2000/svg"><g transform="translate(170,4)"><rect x="18" y="0" width="52" height="38" rx="3" fill="#a8d8f0" opacity="0.5"/><rect x="10" y="8" width="52" height="38" rx="3" fill="#6bbde0" opacity="0.7"/><rect x="2" y="16" width="52" height="38" rx="3" fill="#3a9fd4"/></g><text x="0" y="38" font-family="Arial,sans-serif" font-size="36" font-weight="900" fill="#fff">Open</text><text x="0" y="72" font-family="Arial,sans-serif" font-size="36" font-weight="900" fill="#fff">Systems</text><text x="2" y="95" font-family="Arial,sans-serif" font-size="16" fill="#7fb8e0">Soluções em vidro</text></svg>';
+  html+='<div style="flex:1"></div>';
+  html+='<div style="text-align:right;color:#7fb8e0;font-size:11px;line-height:1.7"><div>(71) 99163-0100 / 9168-1228</div><div>mdwanderley@gmail.com</div><div>CNPJ: 58.002.278/0001-58</div></div></div>';
+  html+='<p style="font-size:15px;font-weight:700;color:#1a2d5a;text-align:center;margin-bottom:4px">'+(isPedido?'PEDIDO CONFIRMADO':'PROPOSTA DE FORNECIMENTO')+'</p>';
+  html+='<p style="text-align:center;color:#888;margin-bottom:14px;font-size:12px">Orçamento Nº '+nOrc+'</p>';
+  html+='<table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:14px">';
+  html+='<tr><td style="padding:4px 8px;width:110px"><b>Cliente</b></td><td style="padding:4px 8px">'+nom+'</td></tr>';
+  html+=docCliente;
+  html+='<tr><td style="padding:4px 8px"><b>Local</b></td><td style="padding:4px 8px">'+endFull+'</td></tr>';
+  html+=predio+'</table>';
+  html+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:14px">';
+  html+='<thead><tr style="background:#1a2d5a;color:#fff"><th style="padding:7px 6px">Nº</th><th style="padding:7px 6px">Produto</th><th style="padding:7px 6px;text-align:center">Vidro</th><th style="padding:7px 6px;text-align:center">Larg</th><th style="padding:7px 6px;text-align:center">Alt</th><th style="padding:7px 6px;text-align:center">Folhas</th><th style="padding:7px 6px;text-align:center">Abert.</th><th style="padding:7px 6px;text-align:center">Qtd</th><th style="padding:7px 6px;text-align:right">Valor</th></tr></thead>';
+  html+='<tbody>'+itensRows+'</tbody>';
+  html+='<tfoot><tr style="background:#e8edf5"><td colspan="8" style="padding:8px 6px;text-align:right;font-weight:600">TOTAL:</td><td style="padding:8px 6px;text-align:right;font-weight:600">R$ '+fmt(valorFinal)+'</td></tr></tfoot></table></div>';
+  html+='<table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:14px">';
+  html+='<tr><td style="padding:4px 8px;width:180px"><b>Pagamento</b></td><td style="padding:4px 8px">'+pgtoLabel+'</td></tr>';
+  html+='<tr><td style="padding:4px 8px"><b>Instalação (à parte)</b></td><td style="padding:4px 8px">'+totalM2.toFixed(2)+' m² × R$ '+fmt(gp('p_in'))+'/m² = <b>R$ '+fmt(totalInst)+'</b></td></tr>';
+  html+='<tr style="background:#e8edf5"><td style="padding:6px 8px;font-weight:600">Total referência</td><td style="padding:6px 8px;font-weight:600">R$ '+fmt(valorFinal+totalInst)+'</td></tr></table>';
+  if(obsC){html+='<div style="border:1px solid #ddd;border-radius:6px;padding:10px;font-size:12px;margin-bottom:12px"><b>Condições especiais:</b><br>'+obsC.replace(/\n/g,'<br>')+'</div>';}
+  if(!isPedido){
+    html+='<div style="font-size:11px;color:#666;border-top:1px solid #eee;padding-top:10px;margin-bottom:12px">';
+    html+='<b>CONDIÇÕES GERAIS</b><br>';
+    html+='• Validade: '+(el('validade').value||'15 dias')+'<br>';
+    html+='• Prazo de execução: a combinar<br>';
+    html+='• Preços podem variar conforme medidas finais<br>';
+    html+='• Garantia de 12 meses contra defeitos de fabricação/instalação</div>';
+  }
+  html+='<div style="text-align:center;font-size:11px;color:#777;border-top:1px solid #eee;padding-top:10px">';
+  html+='<b style="color:#1a2d5a">Open Systems — Fechamento de Varanda</b><br>';
+  html+='CNPJ: 58.002.278/0001-58 | Rua Stela Maris, 1A — Galpão 0, Salvador/BA<br>';
+  html+='(71) 99163-0100 / 9168-1228 | mdwanderley@gmail.com</div></div>';
+  el('prop-titulo').textContent=isPedido?'Pedido Confirmado':'Proposta de Fornecimento';
+  el('txt-prop').innerHTML=html;
+  var wn=el('wa_pre').getAttribute('data-n')||'';
+  el('wa-div').innerHTML=wn?'<a class="wa" href="https://wa.me/'+wn.replace('+','')+'" target="_blank">Abrir WhatsApp</a>':'';
+}
+
+function gerarCortes(resultados){
+  var cc=el('cortes-container');cc.innerHTML='';
+  for(var i=0;i<resultados.length;i++){
+    var r=resultados[i];
+    var div=document.createElement('div');div.className='card';
+    var perfis=[
+      ['Trilho superior',r.nK*r.qtd,r.L,'1 barra 3m/kit'],
+      ['Trilho inferior',r.nK*r.qtd,r.L,'1 barra 3m/kit'],
+      ['Leito',r.nF*2*r.qtd,r.lF,'2 por folha — largura do vidro'],
+      ['Perfil U regulagem',r.nK*2*r.qtd,r.L,'2 por kit — largura do vão'],
+      ['Cantoneira',r.nK*r.qtd,r.A,'1 barra 3m/kit — altura do vão'],
+      ['Capa acabamento',r.nK*2*r.qtd,r.L,'2 barras por kit — largura do vão'],
+    ];
+    var pRows='';for(var j=0;j<perfis.length;j++){pRows+='<tr><td>'+perfis[j][0]+'</td><td class="r">'+perfis[j][1]+'</td><td class="r">'+Math.round(perfis[j][2])+'</td><td style="font-size:11px;color:#aaa">'+perfis[j][3]+'</td></tr>';}
+    var vRows='';var aSum=0;
+    for(var j=0;j<r.nF;j++){var a=(r.lF/1000)*(r.aF/1000);aSum+=a;vRows+='<tr><td>Folha '+(j+1)+'</td><td class="r">'+r.lF+'</td><td class="r">'+r.aF+'</td><td class="r">'+a.toFixed(3)+'</td><td class="r">'+r.qtd+'</td></tr>';}
+    div.innerHTML='<h3>Item '+r.idx+(r.qtd>1?' (×'+r.qtd+')':'')+' — '+r.L+'×'+r.A+'mm</h3>'+
+      '<table><thead><tr><th>Perfil</th><th class="r">Qtde</th><th class="r">Corte mm</th><th>Obs.</th></tr></thead><tbody>'+pRows+'</tbody></table>'+
+      '<div style="margin-top:8px"><table><thead><tr><th>Folha</th><th class="r">Larg mm</th><th class="r">Alt mm</th><th class="r">m²</th><th class="r">Qtd</th></tr></thead><tbody>'+vRows+'<tr><td class="ftd" colspan="3">Área total item</td><td class="ftd r">'+(aSum*r.qtd).toFixed(3)+'</td><td class="ftd r">×'+r.qtd+'</td></tr></tbody></table></div>';
+    cc.appendChild(div);
+  }
+}
+
+function abrirModalImpressao(){calc();el('modal-imp').classList.add('open');}
+function fecharModal(){el('modal-imp').classList.remove('open');}
+
+// ═══════════════════════════════════════════
+// IMPRESSÃO CORRIGIDA — abre nova janela
+// ═══════════════════════════════════════════
+function executarImpressao(){
+  fecharModal();
+  var prop=el('imp_prop').checked;
+  var mat=el('imp_mat').checked;
+  var corte=el('imp_corte').checked;
+  if(!prop&&!mat&&!corte){alert('Selecione pelo menos uma seção.');return;}
+  var desc=parseFloat(el('desconto').value)||0;
+  coletarItens();
+  var resultados=[];
+  for(var i=0;i<itens.length;i++){var r=calcItem(itens[i]);if(r){r.idx=i+1;resultados.push(r);}}
+
+  var logoSVG='<svg width="110" height="44" viewBox="0 0 260 104" xmlns="http://www.w3.org/2000/svg"><g transform="translate(170,4)"><rect x="18" y="0" width="52" height="38" rx="3" fill="#a8d8f0" opacity="0.5"/><rect x="10" y="8" width="52" height="38" rx="3" fill="#6bbde0" opacity="0.7"/><rect x="2" y="16" width="52" height="38" rx="3" fill="#3a9fd4"/></g><text x="0" y="38" font-family="Arial" font-size="36" font-weight="900" fill="#1a2d5a">Open</text><text x="0" y="72" font-family="Arial" font-size="36" font-weight="900" fill="#1a2d5a">Systems</text><text x="2" y="95" font-family="Arial" font-size="14" fill="#1a2d5a">Soluções em vidro</text></svg>';
+
+  var estilos='<style>'+
+    'body{font-family:Arial,sans-serif;font-size:12px;color:#222;margin:20px;line-height:1.5}'+
+    'table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:12px}'+
+    'th{padding:6px;border-bottom:1px solid #eee;color:#999;font-size:10px;text-align:left}'+
+    'td{padding:5px 6px;border-bottom:1px solid #f2f2f2;vertical-align:middle}'+
+    '.r{text-align:right}'+
+    '.ftd{font-weight:600;border-top:2px solid #1a3a5c;padding-top:6px;color:#1a3a5c}'+
+    '.det-item{border:1px solid #e0e0e0;border-radius:6px;padding:8px;margin-bottom:10px;page-break-inside:avoid}'+
+    '.det-item-title{font-size:11px;font-weight:600;color:#1a3a5c;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid #eee}'+
+    '.row-azul td{background:#1a3a5c!important;color:#fff!important;font-weight:600;padding:5px 6px}'+
+    '.card{border:1px solid #e0e0e0;border-radius:6px;padding:10px;margin-bottom:10px;page-break-inside:avoid}'+
+    '.card h3{font-size:10px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}'+
+    '.secao-titulo{font-size:13px;color:#1a2d5a;font-weight:700;margin:16px 0 8px;border-bottom:2px solid #1a2d5a;padding-bottom:4px}'+
+    '@media print{@page{margin:12mm}body{margin:0}.no-print{display:none!important}}-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
+    '</style>';
+
+  var cabecalho='';
+
+  var conteudo='';
+  if(prop){
+    // Usa só o conteúdo da proposta, sem o cabeçalho duplicado
+    var propHTML=el('txt-prop').innerHTML;
+    // Remove o cabeçalho interno da proposta (logo+dados empresa) que já está no cabecalho da janela
+    var tmpDiv=document.createElement('div');
+    tmpDiv.innerHTML=propHTML;
+    var primeiroBorder=tmpDiv.querySelector('div[style*="border-bottom:2px solid #1a2d5a"]')||tmpDiv.querySelector('div[style*="border-bottom: 2px solid"]');
+    if(primeiroBorder)primeiroBorder.remove();
+    conteudo+=tmpDiv.innerHTML;
+    if(mat||corte)conteudo+='<div style="page-break-after:always"></div>';
+  }
+  if(mat){
+    conteudo+='<div class="secao-titulo">CUSTOS DETALHADOS POR ITEM</div>';
+    conteudo+=gerarDetHTML(resultados,desc);
+    if(corte)conteudo+='<div style="page-break-after:always"></div>';
+  }
+  if(corte){
+    conteudo+='<div class="secao-titulo">MEDIDAS DE CORTE</div>';
+    conteudo+=el('cortes-container').innerHTML;
+  }
+
+  var htmlFinal='<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">'+
+    '<title>Open Systems — Impressão</title>'+estilos+
+    '</head><body>'+cabecalho+conteudo+
+    '<script>function imp(){window.print()}<\/script>'+
+    '<div style="text-align:center;padding:16px;background:#f0f0f0;margin-bottom:16px;display:flex;gap:10px;justify-content:center" class="no-print">'+
+    '<button onclick="imp()" style="background:#1a3a5c;color:#fff;border:none;padding:12px 28px;font-size:15px;font-weight:600;border-radius:8px;cursor:pointer">🖨️ Imprimir agora</button>'+
+    '<button onclick="window.close()" style="background:#fff;color:#333;border:1px solid #ccc;padding:12px 20px;font-size:14px;border-radius:8px;cursor:pointer">✕ Fechar</button>'+
+    '</div>'+
+    '</body></html>';
+
+  var w=window.open('','_blank','width=900,height=700');
+  if(!w){alert('Permita pop-ups para imprimir!\n\nNo Safari: Preferências → Sites → Pop-ups → Permitir');return;}
+  w.document.open();
+  w.document.write(htmlFinal);
+  w.document.close();
+}
+
+async function salvar(){
+  coletarItens();
+  var nome=el('cli_nome').value.trim();
+  if(!nome){alert('Informe o nome do cliente.');el('cli_nome').focus();return;}
+  var cpf=el('cli_cpf').value.replace(/\D/g,'');
+  if(cpf&&!validarDoc(cpf)){alert('CPF ou CNPJ inválido.');el('cli_cpf').focus();return;}
+  var temItem=false;
+  for(var i=0;i<itens.length;i++){if(itens[i].larg&&itens[i].alt&&itens[i].nf){temItem=true;break;}}
+  if(!temItem){alert('Preencha pelo menos um item.');return;}
+  var o=coletarForm();
+  if(orcAtual&&orcAtual._id)o._id=orcAtual._id;
+  try{
+    var id=await saveOrc(o);
+    o._id=id;
+    orcAtual=o;
+    if((!orcAtual.status||orcAtual.status==='orcamento')&&el('btn-confirmar-div').innerHTML.indexOf('Confirmar')<0){
+      el('btn-confirmar-div').innerHTML='<button class="btn-green" onclick="confirmarPedido()" style="margin-top:6px">Confirmar como PEDIDO</button>';
+    }
+    alert('Salvo! '+o.num);
+  }catch(e){alert('Erro ao salvar: '+e.message);}
+}
+
+async function salvarECalcular(){await salvar();if(orcAtual){calc();T('calc');}}
+
+function coletarForm(){
+  return {num:el('n_orc').value,status:orcAtual?orcAtual.status||'orcamento':'orcamento',
+    data:el('data').value,cli_nome:el('cli_nome').value,cli_tel:el('cli_tel').value,
+    cli_cpf:el('cli_cpf').value,cli_email:el('cli_email').value,pred_nome:el('pred_nome').value,
+    end_cep:el('end_cep').value,end_rua:el('end_rua').value,end_num:el('end_num').value,
+    end_apto:el('end_apto').value,end_bairro:el('end_bairro').value,end_cidade:el('end_cidade').value,
+    end_uf:el('end_uf').value,v_esp:el('v_esp').value,v_cor:el('v_cor').value,
+    al_cor:el('al_cor').value,ral_cod:el('ral_cod').value,
+    desconto:el('desconto').value,validade:el('validade').value,pgto:el('pgto').value,
+    obs_cliente:el('obs_cliente').value,obs_int:el('obs_int').value,
+    itens:JSON.parse(JSON.stringify(itens))};
+}
+
+function carregarForm(o){
+  orcAtual=o;
+  var ids=['cli_nome','cli_tel','cli_cpf','cli_email','pred_nome','end_cep','end_rua','end_num','end_apto','end_bairro','end_cidade','end_uf','obs_cliente','obs_int','ral_cod'];
+  for(var i=0;i<ids.length;i++){var e=el(ids[i]);if(e)e.value=o[ids[i]]||'';}
+  if(o.cli_tel)fmtTel(el('cli_tel'));
+  el('v_esp').value=o.v_esp||'8';el('v_cor').value=o.v_cor||'inc';
+  el('al_cor').value=o.al_cor||'branco';el('desconto').value=o.desconto||'0';
+  el('validade').value=o.validade||'15 dias';el('pgto').value=o.pgto||'pix';
+  el('n_orc').value=o.num||'';el('data').value=o.data||'';
+  toggleRal();
+  itens=o.itens&&o.itens.length?JSON.parse(JSON.stringify(o.itens)):[{larg:'',alt:'',nf:'',nab:'1',qtd:'1',canto:'0'}];
+  renderItens();
+  var sb=el('status-bar');
+  if(o.status==='pedido'){
+    sb.style.display='block';sb.innerHTML='<div class="info-green">PEDIDO CONFIRMADO — '+o.num+'</div>';
+    el('btn-confirmar-div').innerHTML='<button class="btn2" onclick="cancelarPedido()">Cancelar pedido</button>';
+  } else if(o.status==='cancelado'){
+    sb.style.display='block';sb.innerHTML='<div style="background:#fee2e2;border-radius:8px;padding:10px;font-size:13px;color:#991b1b">CANCELADO</div>';
+    el('btn-confirmar-div').innerHTML='';
+  } else {
+    sb.style.display='none';
+    el('btn-confirmar-div').innerHTML='<button class="btn-green" onclick="confirmarPedido()" style="margin-top:6px">Confirmar como PEDIDO</button>';
+  }
+}
+
+async function confirmarPedido(){
+  if(!orcAtual){alert('Salve primeiro.');return;}
+  var cpf=el('cli_cpf').value.replace(/\D/g,'');
+  if(!cpf){alert('Informe CPF/CNPJ para confirmar.');el('cli_cpf').focus();return;}
+  if(!validarDoc(cpf)){alert('CPF/CNPJ inválido.');return;}
+  if(!confirm('Confirmar '+orcAtual.num+' como PEDIDO?'))return;
+  orcAtual.status='pedido';
+  try{await saveOrc(orcAtual);carregarForm(orcAtual);alert('Pedido confirmado!');}
+  catch(e){alert('Erro: '+e.message);}
+}
+
+async function cancelarPedido(){
+  if(!confirm('Cancelar este pedido?'))return;
+  orcAtual.status='cancelado';
+  try{await saveOrc(orcAtual);carregarForm(orcAtual);}
+  catch(e){alert('Erro: '+e.message);}
+}
+
+async function renderLista(){
+  var el2=el('lista-orcs');
+  el2.innerHTML='<p style="color:#aaa;font-size:13px;padding:8px 0">Carregando...</p>';
+  var arr=[];
+  try{arr=await loadOrcs();}catch(e){el2.innerHTML='<p style="color:#c00;font-size:13px">Erro: '+e.message+'</p>';return;}
+  var q=(el('busca').value||'').toLowerCase();
+  var fil=q?arr.filter(function(o){return(o.cli_nome||'').toLowerCase().indexOf(q)>=0||(o.num||'').toLowerCase().indexOf(q)>=0;}):arr;
+  if(!fil.length){el2.innerHTML='<p style="color:#aaa;font-size:13px;padding:8px 0">Nenhum orçamento. Clique em "+ Novo".</p>';return;}
+  var html='';
+  for(var i=0;i<fil.length;i++){
+    var o=fil[i];
+    var badge=o.status==='pedido'?'<span class="badge badge-ped">PEDIDO</span>':o.status==='cancelado'?'<span class="badge badge-can">CANCELADO</span>':'<span class="badge badge-orc">ORÇAMENTO</span>';
+    var dt=o.data?new Date(o.data+'T12:00:00').toLocaleDateString('pt-BR'):'';
+    var nIt=o.itens?o.itens.length+' item(s)':'';
+    html+='<div class="list-item" onclick="abrirOrc(\''+o._id+'\')">'+
+      '<div class="info-l"><div class="num">'+o.num+' '+badge+'</div>'+
+      '<div class="sub">'+(o.cli_nome||'—')+' · '+dt+' · '+nIt+'</div>'+
+      (o.pred_nome?'<div class="sub">'+o.pred_nome+'</div>':'')+
+      '</div><button class="btn-red" onclick="event.stopPropagation();excluir(\''+o._id+'\')">Excluir</button></div>';
+  }
+  el2.innerHTML=html;
+}
+
+async function abrirOrc(id){
+  var arr=await loadOrcs();
+  for(var i=0;i<arr.length;i++){if(arr[i]._id===id){carregarForm(arr[i]);T('form');return;}}
+}
+
+async function excluir(id){
+  if(!confirm('Excluir este orçamento?'))return;
+  try{await deleteOrc(id);renderLista();}
+  catch(e){alert('Erro: '+e.message);}
+}
+
+function mCep(e){var v=e.value.replace(/\D/g,'');if(v.length>5)v=v.slice(0,5)+'-'+v.slice(5,8);e.value=v;}
+function autoBuscaCep(e){var d=e.value.replace(/\D/g,'');if(d.length===8){clearTimeout(cepTimer);cepTimer=setTimeout(bCep,600);}}
+function bCep(){
+  var cep=el('end_cep').value.replace(/\D/g,'');if(cep.length!==8)return;
+  el('cep_st').textContent='Buscando...';
+  fetch('https://viacep.com.br/ws/'+cep+'/json/').then(function(r){return r.json();}).then(function(d){
+    if(d.erro){el('cep_st').textContent='CEP não encontrado.';return;}
+    el('end_rua').value=d.logradouro||'';el('end_bairro').value=d.bairro||'';
+    el('end_cidade').value=d.localidade||'';el('end_uf').value=d.uf||'';
+    el('cep_st').textContent='Endereço preenchido';el('end_num').focus();
+  }).catch(function(){el('cep_st').textContent='Erro. Preencha manualmente.';});
+}
+
+function fmtTel(e){
+  var v=e.value.replace(/\D/g,'');if(v.indexOf('55')===0&&v.length>11)v=v.slice(2);
+  var s='';
+  if(v.length<=2)s=v;else if(v.length<=6)s=v.slice(0,2)+' '+v.slice(2);
+  else if(v.length<=10)s=v.slice(0,2)+' '+v.slice(2,6)+'-'+v.slice(6);
+  else s=v.slice(0,2)+' '+v.slice(2,7)+'-'+v.slice(7,11);
+  e.value=s;
+  var d=v.replace(/\D/g,'');
+  if(d.length>=10){var n='+55'+d;el('wa_pre').textContent='WhatsApp: '+n;el('wa_pre').setAttribute('data-n',n);}
+  else{el('wa_pre').textContent='';el('wa_pre').setAttribute('data-n','');}
+}
+
+function fmtDoc(e){
+  var v=e.value.replace(/\D/g,'').slice(0,14);
+  if(v.length<=11)v=v.replace(/(\d{3})(\d{3})(\d{3})(\d{0,2})/,'$1.$2.$3-$4').replace(/-$/,'');
+  else v=v.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{0,2})/,'$1.$2.$3/$4-$5').replace(/-$/,'');
+  e.value=v;
+}
+
+function validarDoc(d){
+  if(d.length===11){
+    if(/^(\d)\1+$/.test(d))return false;
+    var s=0;for(var i=0;i<9;i++)s+=parseInt(d[i])*(10-i);
+    var r=11-(s%11);if(r>=10)r=0;if(r!==parseInt(d[9]))return false;
+    s=0;for(var i=0;i<10;i++)s+=parseInt(d[i])*(11-i);
+    r=11-(s%11);if(r>=10)r=0;return r===parseInt(d[10]);
+  }
+  if(d.length===14){
+    if(/^(\d)\1+$/.test(d))return false;
+    var calc=function(n,t){var s=0,p=t;for(var i=0;i<n;i++){s+=parseInt(d[i])*p--;if(p<2)p=9;}var r=11-(s%11);return r<2?0:r;};
+    return calc(12,5)===parseInt(d[12])&&calc(13,6)===parseInt(d[13]);
+  }
+  return false;
+}
+
+function cop(t){
+  var s='';
+  if(t==='corte'){
+    var tbls=document.querySelectorAll('#cortes-container table');
+    for(var i=0;i<tbls.length;i++){s+='---\n';var rows=tbls[i].querySelectorAll('tr');for(var j=0;j<rows.length;j++){var cells=rows[j].querySelectorAll('td,th');var line=[];for(var k=0;k<cells.length;k++)line.push(cells[k].innerText.trim());s+=line.join(' | ')+'\n';}}
+  }
+  navigator.clipboard.writeText(s).then(function(){alert('Copiado!');}).catch(function(){alert('Copie manualmente.');});
+}
+
+try{el('data').value=hoje();}catch(e){}
+try{renderLista();}catch(e){}
+(function(){
+  var tabs=['lista','form','calc','prop','corte','prec'];
+  for(var i=0;i<tabs.length;i++){
+    var s=el('tab-'+tabs[i]);
+    if(s)s.style.display=tabs[i]==='lista'?'block':'none';
+  }
+})();
+</script>
+</body>
+</html>
