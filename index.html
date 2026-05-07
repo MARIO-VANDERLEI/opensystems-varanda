@@ -392,8 +392,8 @@ async function deleteOrc(id){
   await deleteDoc(doc(window._db,'orcamentos',id));
 }
 
-function proximoNum(){
-  var arr=getOrcs();if(!arr.length)return 5000;
+function proximoNum(arr){
+  if(!arr||!arr.length)return 5000;
   var max=4999;
   for(var i=0;i<arr.length;i++){var n=parseInt((arr[i].num||'ORC-4999').replace('ORC-',''))||0;if(n>max)max=n;}
   return max+1;
